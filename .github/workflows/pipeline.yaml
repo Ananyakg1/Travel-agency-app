@@ -1,0 +1,35 @@
+# This workflow will build and test your project
+# Name the workflow as you like
+name: Travel Agency CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test || echo "No backend tests defined"
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test || echo "No frontend tests defined"

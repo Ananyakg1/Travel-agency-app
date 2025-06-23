@@ -1,0 +1,22 @@
+steps:
+  - name: Build Backend
+    image: node:14
+    workingDirectory: /backend
+    commands:
+      - npm install
+      - npm run build
+      - docker build -t travel-agency-backend .
+
+  - name: Build Frontend
+    image: node:14
+    workingDirectory: /frontend
+    commands:
+      - npm install
+      - npm run build
+      - docker build -t travel-agency-frontend .
+
+  - name: Deploy
+    image: docker
+    commands:
+      - docker run -d -p 3000:3000 travel-agency-frontend
+      - docker run -d -p 5000:5000 travel-agency-backend

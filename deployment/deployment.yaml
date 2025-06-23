@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travel-agency-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: travel-agency-backend
+  template:
+    metadata:
+      labels:
+        app: travel-agency-backend
+    spec:
+      containers:
+      - name: backend
+        image: travel-agency-backend:latest
+        ports:
+        - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travel-agency-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: travel-agency-frontend
+  template:
+    metadata:
+      labels:
+        app: travel-agency-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: travel-agency-frontend:latest
+        ports:
+        - containerPort: 3000

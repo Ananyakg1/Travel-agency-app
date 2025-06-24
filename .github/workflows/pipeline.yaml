@@ -40,13 +40,13 @@ jobs:
         run: |
           docker build -t travel-agency-frontend ./frontend
       - name: Snyk scan backend Docker image
-        uses: snyk/actions/docker@v3
+        uses: snyk/actions/docker@master
         with:
           image: travel-agency-backend
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Snyk scan frontend Docker image
-        uses: snyk/actions/docker@v3
+        uses: snyk/actions/docker@master
         with:
           image: travel-agency-frontend
         env:

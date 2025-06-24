@@ -9,8 +9,11 @@ RUN npm install --omit=dev
  
 COPY ./src ./src
  
+# Remove global npm to eliminate CLI-only CVEs
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/bin/npm \
+           /usr/local/bin/npx
+ 
 EXPOSE 5000
  
 CMD ["node", "src/index.js"]
-
- 

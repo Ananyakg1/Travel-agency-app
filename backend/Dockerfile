@@ -1,31 +1,21 @@
-FROM node:20.17.0-alpine
+FROM node:20.19.2-alpine
  
 WORKDIR /usr/src/app
  
+# Update Alpine packages to get patched versions
+RUN apk update && \
+    apk upgrade --no-cache
+ 
+# Copy dependencies and install
 COPY package*.json ./
+RUN npm install --omit=dev
  
-RUN npm install --omit=dev && \
-    npm install -g npm@11.3.0
- 
+# Copy source code
 COPY ./src ./src
  
 EXPOSE 5000
  
 CMD ["node", "src/index.js"]
-# Run app
-CMD ["node", "src/index.js"]
-
-COPY package*.json ./
-
-RUN npm ci --omit=dev
- 
-# Copy application source
-
-COPY ./src ./src
- 
-# Expose application port
-
-EXPOSE 5000
  
 # Set command
 

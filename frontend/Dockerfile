@@ -1,22 +1,20 @@
-# Use secure and minimal base image
-FROM node:20.15.1-alpine
+# Secure & minimal base image
+FROM node:20.19.2-alpine
  
 # Set working directory
 WORKDIR /app
  
-# Copy package.json and package-lock.json
+# Copy only dependency files first
 COPY package*.json ./
  
-# Install production dependencies only
+# Install production dependencies
 RUN npm install --omit=dev && npm cache clean --force
  
-# Copy application source
+# Copy source code
 COPY src/ ./
  
-# Optional: Expose app port
+# Optional: expose port
 # EXPOSE 3000
  
-# Start the app
+# Start the application
 CMD ["npm", "start"]
-
- 

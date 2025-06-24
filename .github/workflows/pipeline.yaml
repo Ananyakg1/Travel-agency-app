@@ -33,3 +33,9 @@ jobs:
         run: |
           cd frontend
           npm test || echo "No frontend tests defined"
+      - name: Build backend Docker image
+        run: |
+          docker build -t travel-agency-backend ./backend
+      - name: Build frontend Docker image
+        run: |
+          docker build -t travel-agency-frontend ./frontend

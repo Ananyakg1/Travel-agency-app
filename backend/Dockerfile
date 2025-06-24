@@ -1,26 +1,22 @@
-# Use a maintained and smaller base image
-
-FROM node:18-slim
+# Base image with latest secure Node.js
+FROM node:20.15.1-alpine
  
-# Set working directory
-
+# Set work directory
 WORKDIR /usr/src/app
  
-# Install security updates and essential packages
-
-RUN apt-get update && \
-
-    apt-get upgrade -y && \
-
-    apt-get install -y --no-install-recommends \
-
-        ca-certificates && \
-
-    apt-get clean && \
-
-    rm -rf /var/lib/apt/lists/*
+# Install production dependencies
+COPY package*.json ./
+RUN npm install --omit=dev && \
+    npm install -g npm@11.3.0
  
-# Copy package files and install dependencies
+# Copy app code
+COPY ./src ./src
+ 
+# Expose application port
+EXPOSE 5000
+ 
+# Run app
+CMD ["node", "src/index.js"]
 
 COPY package*.json ./
 

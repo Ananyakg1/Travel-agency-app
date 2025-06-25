@@ -16,4 +16,8 @@ RUN rm -rf /usr/local/lib/node_modules/npm \
  
 EXPOSE 5000
  
+<<<<<<< HEAD
 CMD ["node", "src/index.js"]
+=======
+CMD ["node", "src/index.js"]
+>>>>>>> 9564b52f736fa361f10fee218e6038b7b2916732

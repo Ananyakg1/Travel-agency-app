@@ -56,8 +56,11 @@ jobs:
       - name: Run backend container and check health
         run: |
           docker run -d -p 5000:5000 --name backend-test travel-agency-backend
-          sleep 10
+          sleep 30
           curl --fail http://localhost:5000/api/travel
+      - name: Print backend container logs on failure
+        if: failure()
+        run: docker logs backend-test || true
       - name: Run frontend container and check health
         run: |
           docker run -d -p 3000:3000 --name frontend-test travel-agency-frontend

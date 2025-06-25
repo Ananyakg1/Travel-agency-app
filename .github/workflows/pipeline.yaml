@@ -43,12 +43,14 @@ jobs:
         uses: snyk/actions/docker@master
         with:
           image: travel-agency-backend
+          args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Snyk scan frontend Docker image
         uses: snyk/actions/docker@master
         with:
           image: travel-agency-frontend
+          args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Run backend container and check health

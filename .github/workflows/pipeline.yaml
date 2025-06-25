@@ -51,3 +51,18 @@ jobs:
           image: travel-agency-frontend
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run backend container and check health
+        run: |
+          docker run -d -p 5000:5000 --name backend-test travel-agency-backend
+          sleep 10
+          curl --fail http://localhost:5000/api/travel
+      - name: Run frontend container and check health
+        run: |
+          docker run -d -p 3000:3000 --name frontend-test travel-agency-frontend
+          sleep 20
+          curl --fail http://localhost:3000
+      - name: Cleanup containers
+        if: always()
+        run: |
+          docker rm -f backend-test || true
+          docker rm -f frontend-test || true

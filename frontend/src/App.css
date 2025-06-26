@@ -5,6 +5,10 @@ body {
   min-height: 100vh;
 }
 
+.app-container, .app-container * {
+  color: #222 !important;
+}
+
 .app-container {
   max-width: 700px;
   margin: 40px auto;

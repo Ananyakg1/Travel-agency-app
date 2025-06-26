@@ -33,6 +33,10 @@ function App() {
             <li>Travel Insurance</li>
           </ul>
         </section>
+        <section>
+          <h2>Debug</h2>
+          <div style={{color: 'red', fontWeight: 'bold'}}>Hello World (debug)</div>
+        </section>
       </main>
       <footer>
         <p>&copy; 2023 Travel Agency. All rights reserved.</p>

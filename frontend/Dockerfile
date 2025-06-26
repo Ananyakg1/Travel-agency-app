@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
  
 # Install production deps and clean cache
-RUN npm install --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm audit fix --omit=dev && npm cache clean --force
  
 COPY src/ ./
  

@@ -1,49 +1,131 @@
-name: Build and Deploy to AKS via ACR
+name: CI/CD Pipeline - Travel Agency App
 
 on:
-  push: 
-    branches: [ main ] 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build-and-deploy: 
-    runs-on: self-hosted
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build_id: ${{ steps.build_tag.outputs.BUILD_ID }}
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      # Build Frontend
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+          
+      - name: Build frontend project
+        run: |
+          cd frontend
+          npm run build
+          
+      # Build Backend
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+          
+      - name: Build backend project
+        run: |
+          cd backend
+          npm run build || echo "No build script found, skipping"
+          
+      # Build Docker Images
+      - name: Build Frontend Docker image
+        run: docker build -t travel-agency-frontend ./frontend
+        
+      - name: Build Backend Docker image
+        run: docker build -t travel-agency-backend ./backend
+          
+      # Snyk security scanning
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: travel-agency-frontend
+          args: --severity-threshold=high
+          
+      # Log in to Azure Container Registry
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          
+      # Set build tag
+      - name: Set build tag
+        id: build_tag
+        run: |
+          echo "BUILD_ID=$(echo $GITHUB_RUN_NUMBER)" >> $GITHUB_ENV
+          echo "BUILD_ID=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
+          
+      # Tag and Push Frontend Docker image
+      - name: Tag Frontend Docker image
+        run: docker tag travel-agency-frontend ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-frontend:${{ env.BUILD_ID }}
+        
+      - name: Push Frontend Docker image to ACR
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-frontend:${{ env.BUILD_ID }}
+        
+      # Tag and Push Backend Docker image
+      - name: Tag Backend Docker image
+        run: docker tag travel-agency-backend ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-backend:${{ env.BUILD_ID }}
+        
+      - name: Push Backend Docker image to ACR
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-backend:${{ env.BUILD_ID }}
 
-      - name: Log in to Azure
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+          
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-
-      - name: Log in to ACR
-        uses: azure/docker-login@v2
-        with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build and push frontend image
-        run: |
-          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-frontend:latest ./frontend
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-frontend:latest
-
-      - name: Build and push backend image
-        run: |
-          docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-backend:latest ./backend
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-backend:latest
-
+          
       - name: Set AKS context
         uses: azure/aks-set-context@v3
         with:
           resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-      - name: Deploy to AKS
+          
+      - name: Set image tags in deployment file
         run: |
-          envsubst < deployment/deployment.yaml | kubectl apply -f -
-        env:
-          REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          sed -i "s|\${REGISTRY_LOGIN_SERVER}/travel-agency-frontend:latest|${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-frontend:${{ needs.build.outputs.build_id }}|g" deployment/deployment.yaml
+          sed -i "s|\${REGISTRY_LOGIN_SERVER}/travel-agency-backend:latest|${{ secrets.REGISTRY_LOGIN_SERVER }}/travel-agency-backend:${{ needs.build.outputs.build_id }}|g" deployment/deployment.yaml
+          
+      - name: Deploy to AKS
+        run: kubectl apply -f deployment/deployment.yaml
+        
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/travel-agency-frontend --timeout=300s
+          kubectl rollout status deployment/travel-agency-backend --timeout=300s
+          kubectl get pods -l app=travel-agency-frontend
+          kubectl get pods -l app=travel-agency-backend
+          kubectl get services

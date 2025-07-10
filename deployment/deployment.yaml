@@ -18,6 +18,19 @@ spec:
         ports:
         - containerPort: 3000
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travel-agency-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: travel-agency-backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,3 +50,16 @@ spec:
         image: ${REGISTRY_LOGIN_SERVER}/travel-agency-frontend:latest
         ports:
         - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travel-agency-frontend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: travel-agency-frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP

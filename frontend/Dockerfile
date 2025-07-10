@@ -11,6 +11,13 @@ COPY package*.json ./
 # Install production deps and clean cache
 RUN npm install --omit=dev && npm cache clean --force
  
-COPY src/ ./
+COPY . ./
  
-CMD ["npm", "start"]
+# Build the app
+RUN npm run build
+ 
+# Expose port
+EXPOSE 3000
+ 
+# Use preview to serve the built app
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3000"]

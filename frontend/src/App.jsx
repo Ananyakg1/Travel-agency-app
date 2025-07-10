@@ -1,6 +1,3 @@
-// This file is now replaced by App.jsx and main.jsx for Vite setup.
-// You can remove this file if not needed.
-
 import React, { useEffect, useState } from 'react';
 import './App.css';
 

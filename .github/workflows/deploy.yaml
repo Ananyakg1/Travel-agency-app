@@ -44,4 +44,6 @@ jobs:
 
       - name: Deploy to AKS
         run: |
-          kubectl apply -f deployment/deployment.yaml
+          envsubst < deployment/deployment.yaml | kubectl apply -f -
+        env:
+          REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}

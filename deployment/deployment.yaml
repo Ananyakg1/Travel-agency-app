@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: travel-agency-backend:latest
+        image: ${REGISTRY_LOGIN_SERVER}/travel-agency-backend:latest
         ports:
         - containerPort: 3000
 ---
@@ -34,6 +34,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: travel-agency-frontend:latest
+        image: ${REGISTRY_LOGIN_SERVER}/travel-agency-frontend:latest
         ports:
         - containerPort: 3000

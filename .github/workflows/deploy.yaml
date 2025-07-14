@@ -100,6 +100,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      - name: Verify secrets are set
+        run: |
+          echo "Checking if required secrets are set..."
+          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ]; then
+            echo "ERROR: AZURE_CLIENT_ID secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then
+            echo "ERROR: AZURE_TENANT_ID secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then
+            echo "ERROR: AZURE_SUBSCRIPTION_ID secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AZURE_CLIENT_SECRET }}" ]; then
+            echo "ERROR: AZURE_CLIENT_SECRET secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AKS_RESOURCE_GROUP }}" ]; then
+            echo "ERROR: AKS_RESOURCE_GROUP secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AKS_CLUSTER_NAME }}" ]; then
+            echo "ERROR: AKS_CLUSTER_NAME secret is not set"
+            exit 1
+          fi
+          echo "All required secrets are set"
+        
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -112,6 +141,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          
+      - name: Verify Azure login
+        run: |
+          az account show
+          az acr list --query "[].{Name:name,LoginServer:loginServer}" --output table
           
       - name: Set AKS context
         uses: azure/aks-set-context@v3

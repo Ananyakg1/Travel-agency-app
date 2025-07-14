@@ -4,12 +4,6 @@ version: v1.0.0
 ignore:
   'SNYK-GOLANG-GOLANGORGXSYSUNIX-3310442':
     - '*':
-        reason: Medium severity vulnerability in build tool dependency - acceptable risk
-        expires: '2026-01-01T00:00:00.000Z'
-  # General rule to ignore all medium severity vulnerabilities
-  '*':
-    - '*':
-        reason: Ignore all medium severity vulnerabilities
-        expires: '2026-01-01T00:00:00.000Z'
-        severity: medium
+        reason: Medium severity vulnerability in esbuild build tool dependency - acceptable risk for development
+        expires: '2026-12-31T23:59:59.999Z'
 patch: {}

@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build: 
     runs-on: ubuntu-latest
     outputs:
       build_id: ${{ steps.build_tag.outputs.BUILD_ID }}

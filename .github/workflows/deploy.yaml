@@ -60,7 +60,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: travel-agency-frontend
-          args: --severity-threshold=high --exclude-app-vulns
+          args: --severity-threshold=high --exclude-app-vulns --policy-path=.snyk
           
       # Log in to Azure Container Registry
       - name: Log in to Azure Container Registry

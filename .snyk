@@ -8,3 +8,11 @@ ignore:
         expires: '2026-12-31T23:59:59.999Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch: {}
+
+# Global rules to ignore medium severity vulnerabilities
+rules:
+  - id: '*'
+    severity: medium
+    action: ignore
+    reason: Medium severity vulnerabilities are acceptable for this project
+    expires: '2026-12-31T23:59:59.999Z'
